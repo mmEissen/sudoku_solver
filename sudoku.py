@@ -23,7 +23,7 @@ def create_solver_vars(sudoku, solver):
     return solver_vars
 
 def create_constraints(solver_vars, solver):
-    """Creates constraints on the `solver_vars` and add the constraints to the solver  
+    """Creates constraints on the `solver_vars` and add the constraints to the solver.  
     """
     lines = [solver_vars[i:i + PUZZLE_SIZE] for i in range(0, PUZZLE_SIZE ** 2, PUZZLE_SIZE)]
     rows = zip(*lines)
