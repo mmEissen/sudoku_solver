@@ -47,23 +47,9 @@ def create_constraints(solver_vars, solver):
     for section in itertools.chain(lines, rows, cells):
         solver.Add(solver.AllDifferent(section))
 
-def solve(sudoku):
-    """Solve a sudoku.
-
-    The format of the sudoku should be a list of 81 integers, listing all numbers line by line.
-    An empty cell is represented as 0.
+def find_solution(solver, solver_vars):
+    """Find a valid solution.
     """
-
-    # Create solver
-    solver = pywrapcp.Solver('Sudoku Solver')
-
-    # Create variables
-    solver_vars = create_solver_vars(sudoku, solver)
-
-    # Add constraints
-    create_constraints(solver_vars, solver)
-
-    # Solve
     decision_builder = solver.Phase(
         solver_vars,
         solver.CHOOSE_FIRST_UNBOUND,
@@ -74,7 +60,25 @@ def solve(sudoku):
 
     if solver.NextSolution():
         return [var.Value() for var in solver_vars]
-    return sudoku
+    return []
+
+def solve(sudoku):
+    """Solve a sudoku.
+    """
+
+    # Initialize solver
+    solver = pywrapcp.Solver('Sudoku Solver')
+
+    # Define variables
+    solver_vars = create_solver_vars(sudoku, solver)
+
+    # Define constraints
+    create_constraints(solver_vars, solver)
+
+    # Solve
+    solution = find_solution(solver, solver_vars)
+
+    return solution or sudoku
 
 def print_sudoku(sudoku):
     """Print a sudoku as a 9x9 block of digits.
@@ -84,7 +88,7 @@ def print_sudoku(sudoku):
     print()
 
 def load_sudokus(file_name):
-    """Load sudokus from a file. The file ichs expected to have one sudoku in every line
+    """Load sudokus from a file. The file is expected to have one sudoku in every line
     """
     with open(file_name) as sudoku_file:
         sudokus = [[int(c) for c in line.strip()] for line in sudoku_file]
@@ -92,9 +96,10 @@ def load_sudokus(file_name):
 
 def main():
     sudokus = load_sudokus('sudoku_data.txt')
-    for sudoku in sudokus[:50]:
-        solved_sudoku = solve(sudoku)
-        print_sudoku(solved_sudoku)
+    solved_sudokus = []
+    for i, sudoku in enumerate(sudokus):
+        solved_sudokus.append(solve(sudoku))
+        print('{:5}/{}'.format(i, len(sudokus)), end='\r')
 
 if __name__ == '__main__':
     main()
