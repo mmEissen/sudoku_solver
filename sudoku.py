@@ -3,8 +3,8 @@ import re
 
 from ortools.constraint_solver import pywrapcp
 
-CELL_SIZE = 3
-PUZZLE_SIZE = CELL_SIZE ** 2
+BLOCK_SIZE = 3
+PUZZLE_SIZE = BLOCK_SIZE ** 2
 
 # Captures the sudoku in match group 1
 RE_SUDOKU = re.compile(
@@ -32,19 +32,19 @@ def create_constraints(solver_vars, solver):
     ]
     rows = zip(*lines)
 
-    cell_coords = itertools.product(range(0, PUZZLE_SIZE, CELL_SIZE), repeat=2)
-    cells = [
+    block_coords = itertools.product(range(0, PUZZLE_SIZE, BLOCK_SIZE), repeat=2)
+    blocks = [
         [
             lines[y][x]
             for x, y in itertools.product(
-                range(cell_x, cell_x + CELL_SIZE),
-                range(cell_y, cell_y + CELL_SIZE),
+                range(block_x, block_x + BLOCK_SIZE),
+                range(block_y, block_y + BLOCK_SIZE),
             )
         ]
-        for cell_x, cell_y in cell_coords
+        for block_x, block_y in block_coords
     ]
 
-    for section in itertools.chain(lines, rows, cells):
+    for section in itertools.chain(lines, rows, blocks):
         solver.Add(solver.AllDifferent(section))
 
 def find_solution(solver, solver_vars):
@@ -96,10 +96,8 @@ def load_sudokus(file_name):
 
 def main():
     sudokus = load_sudokus('sudoku_data.txt')
-    solved_sudokus = []
-    for i, sudoku in enumerate(sudokus):
-        solved_sudokus.append(solve(sudoku))
-        print('{:5}/{}'.format(i, len(sudokus)), end='\r')
+    for sudoku in sudokus:
+        print_sudoku(solve(sudoku))
 
 if __name__ == '__main__':
     main()
