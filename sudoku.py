@@ -1,16 +1,9 @@
 import itertools
-import re
 
 from ortools.constraint_solver import pywrapcp
 
 BLOCK_SIZE = 3
 PUZZLE_SIZE = BLOCK_SIZE ** 2
-
-# Captures the sudoku in match group 1
-RE_SUDOKU = re.compile(
-    r'.*\n((?:\d{' + str(PUZZLE_SIZE) + '}\n){' + str(PUZZLE_SIZE) + '})'
-)
-
 
 def create_solver_vars(sudoku, solver):
     """Creates and returns IntVars for a given sudoku.
@@ -32,7 +25,10 @@ def create_constraints(solver_vars, solver):
     ]
     rows = zip(*lines)
 
-    block_coords = itertools.product(range(0, PUZZLE_SIZE, BLOCK_SIZE), repeat=2)
+    block_coords = itertools.product(
+        range(0, PUZZLE_SIZE, BLOCK_SIZE),
+        repeat=2,
+    )
     blocks = [
         [
             lines[y][x]
